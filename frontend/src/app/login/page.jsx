@@ -1,4 +1,44 @@
-export const login = () => {
+'use client';
+import { useFormik } from 'formik'
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react'
+import toast from 'react-hot-toast';
+import * as Yup from 'yup';
+
+const LoginSchema = Yup.object().shape({
+  email: Yup.string()
+    .required('Email is required')
+    .email('Email is invalid'),
+  password: Yup.string().required('Password is required')
+
+});
+ const login = () =>  {
+  const [users, setUsers] = useState(JSON.parse(localStorage.getItem('users')) || []);
+  const router = useRouter();
+
+  const loginForm = useFormik({
+    initialValues: {
+      email: '',
+      password: ''
+    },
+    onSubmit: (values, { resetForm }) => {
+      console.log(users);
+
+      const matchedUser = users.find(user => {
+        user.email === values.email && user.password === values.password
+      })
+
+      if (matchedUser !== null) {
+        localStorage.setItem('authenticated', JSON.stringify(values));
+        toast.success('Loggedin Successfully');
+        window.location = '/search'
+        resetForm();
+      } else {
+        toast.error('Login Failed');
+      }
+    },
+    validationSchema: LoginSchema
+  })
   
   return (     
     
@@ -21,7 +61,7 @@ export const login = () => {
               aria-label=""
               className="inline-flex items-center font-semibold tracking-wider transition-colors duration-200 text-teal-accent-400 hover:text-teal-accent-700"
             >
-              Learn more
+              
               <svg
                 className="inline-block w-3 ml-2"
                 fill="currentColor"
@@ -97,7 +137,7 @@ export const login = () => {
                       type="submit"
                       className="inline-flex items-center justify-center w-full h-12 px-6 font-medium tracking-wide text-black transition duration-200 rounded shadow-md bg-deep-purple-accent-400 hover:bg-deep-purple-accent-700 focus:shadow-outline focus:outline-none"
                     >
-                      Submit
+                      Login
                     </button>
                   </div>
                   <p className="text-xs text-gray-600 sm:text-sm">
